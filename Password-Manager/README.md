@@ -20,21 +20,25 @@ Idea
 Store our credentials in google drive, that can be fetched only if we are already logged-in. Google offers [two-step verification](https://www.google.com/landing/2step/), so nobody can retrieve our credentials without stealing our phone.
 
 <b>Initialization</b>
+
 0. Prompt for master password.
 1. Store them in browser cache.
 2. Master password should expire after some time-span OR browser restart.
 
 <b>Password Storing</b>
+
 0. Auto-detect login forms and grab credentials.
 1. Encrypt credentials with master password.
 2. Submit them to Google Sheet.
 
 <b>Password Autofill</b>
+
 0. Detect login form.
 1. Retrieve credentials from google sheet. i.e, ``getCredentials(pageURL);``
 2. Fill them on login-forms, and simulate login button click .
 
 <b>Features</b>
+
 0. Make script aware of captive login portal, by manually marking some login page as captive portal.
 1. Google script attached to spreadsheet will periodically remind us to change password, via email.
 2. Automatic password generation. Rather than password reuse it would generate password which is lexicographically related to site URL.
