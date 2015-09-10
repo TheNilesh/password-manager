@@ -12,18 +12,17 @@ function utf8_to_b64(str) {
     return window.btoa(unescape(encodeURIComponent(str)));
 }
 
-var masterPwd = null;
+var masterPassword = null;
 var userIdField = null;
 var pwdBox;
 
 function encryptAndSend() {
-  if (masterPwd == null) {
-    masterPwd = prompt("Master Password ?");
-  }
-  
-  var encUser = utf8_to_b64( JSON.stringify(sjcl.encrypt(masterPwd, userIdField.value)) );
-  var encPwd = utf8_to_b64( JSON.stringify(sjcl.encrypt(masterPwd, pwdBox.value)) );
-
+    if (masterPassword == null) {
+        masterPassword = prompt("Master Password ?");
+    }
+    var encUser = utf8_to_b64( JSON.stringify(sjcl.encrypt(masterPassword, userIdField.value)) );
+    var encPwd = utf8_to_b64( JSON.stringify(sjcl.encrypt(masterPassword, pwdBox.value)) );
+   
   //post to google
   GM_xmlhttpRequest({
     method: "POST",
@@ -72,12 +71,26 @@ if (loginForm != null) {
 function obtainCredential(site) {
   //lookup into cache
   var credential = GM_getvalue('cred:' + site);
-  
   if (credential == null) { //contact google
     updateCache();
     credential = GM_getvalue('cred:' + site);
   }
+  
+  credential = decryptCredential(credential);
+  
   return credential;
+}
+
+function decryptCredential(credential) {
+    var userId = credential.split(':')[0];
+    var pwd = credential.split(':')[1];
+    if (masterPassword == null) {
+        masterPassword = prompt("Master Password ?");
+    }
+    //Cache master Password
+    userId = sjcl.decrypt(masterPassword, userId);
+    pwd = sjcl.decrypt(masterPassword, pwd);
+    return userId + ':' + pwd;
 }
 
 function updateCache() {
@@ -107,10 +120,11 @@ function updateCache() {
   });
 }
 
-function updateCache(records) {
-   
-}
 */
+
+//TODO:What if password contains concat character, say ':'
+//TODO:Concatenate userId, password together to get improved enc/decryption speed
+//TODO:Destroy credential, master password after some time / browser exit. Allow user to save password if he wish.
 
 /*
 //How to obtain Feeds URL from Unpublished google sheet.
