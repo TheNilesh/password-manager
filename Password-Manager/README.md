@@ -43,9 +43,10 @@ Store our credentials in google drive, that can be fetched only if we are alread
 1. Google script attached to spreadsheet will periodically remind us to change password, via email.
 2. Automatic password generation. Rather than password reuse it would generate password which is lexicographically related to site URL.
 
-Thanks To
+TODO
 -------------
-
+ - No need of creating Google form, we can directly manipulate sheet using this [API](https://developers.google.com/google-apps/spreadsheets/?hl=en)
+ - Automate process
 
 References
 ===================
