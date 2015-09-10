@@ -124,6 +124,7 @@ function updateCache() {
 
 //TODO:What if password contains concat character, say ':'
 //TODO:Concatenate userId, password together to get improved enc/decryption speed
+//TODO:Above TODO if used, google script will not detect change of password. It compares encUserId to remove old
 //TODO:Destroy credential, master password after some time / browser exit. Allow user to save password if he wish.
 
 /*
