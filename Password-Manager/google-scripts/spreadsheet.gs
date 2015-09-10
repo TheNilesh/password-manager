@@ -8,7 +8,7 @@
              {name: "Encrypt", functionName: "encryptCell"}
             ]; 
   ss.addMenu("Crypt", menu);
-  ss.toast("Select cell and click show Secret", "", 5);
+  ss.toast("Select cell and Crypt -> Decrypt", "How to decrypt", 15);
 }
 
 function bin2Str(array) {
