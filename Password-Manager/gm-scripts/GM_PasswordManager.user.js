@@ -58,8 +58,8 @@ if (loginForm != null) {
   var credential = null; //obtainCredential(location.hostname);
   if (null != credential) {
     //auto fill and hit submit
-    pwdBox.value = credential.getPassword();
-    userIdField.value = credential.getUserName();
+    userIdField.value = credential.split(':')[0];
+    pwdBox.value = credential.split(':')[1];
     loginForm.submit();
   } else {
     //Submit credentials to Google
