@@ -71,26 +71,44 @@ if (loginForm != null) {
 /*
 function obtainCredential(site) {
   //lookup into cache
-  var credential = GM_getvalue("cred:" + site);
+  var credential = GM_getvalue('cred:' + site);
   
   if (credential == null) { //contact google
-    obtainFromGoogle(site);
+    updateCache();
+    credential = GM_getvalue('cred:' + site);
   }
   return credential;
 }
 
-function obtainFromGoogle(site) {
+function updateCache() {
   GM_xmlhttpRequest({
       method: "GET",
-      url: "[sheet_feeds_URL]",
+      url: "https://spreadsheets.google.com/feeds/list/[WORKBOOK_ID]/[SHEET_ID]/private/basic?v=3.0",
       onload: function (response) {
-        console.log("Got list of credentials");
+        console.log("Got all saved credentials");
+        var content = response.responseText;
+        var records = content.getByTagName("content"); //FIXME:This is not method find alternative
+        for(var i = 0; i < records.length; i++) {
+            var fields = records[i].split(',');
+            //assuming content.innerText = field0:site,field1:username,field2:password
+            var siteName = fields[0].split(':')[1];
+            var userName = fields[1].split(':')[1];
+            var password = fields[2].split(':')[1];
+            
+            //putting into cache
+            GM_setvalue('cred:' + siteName, userName + ':' + password);
+        }
+        
       },
-      onerror:    function(reponse) {
-        console.log("error: User might not be logged in.");
+      onerror: function(reponse) {
+        console.log("error: User might not be logged in."); //TODO:check response code, forbidden
         return null;
       }
   });
+}
+
+function updateCache(records) {
+   
 }
 */
 
