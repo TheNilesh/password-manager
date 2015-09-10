@@ -99,8 +99,8 @@ function updateCache() {
       url: "https://spreadsheets.google.com/feeds/list/[WORKBOOK_ID]/[SHEET_ID]/private/basic?v=3.0",
       onload: function (response) {
         console.log("Got all saved credentials");
-        var content = response.responseText;
-        var records = content.getByTagName("content"); //FIXME:This is not method find alternative
+        var content = response.responseXML;
+        var records = content.getElementsByTagName("content");
         for(var i = 0; i < records.length; i++) {
             var fields = records[i].split(',');
             //assuming content.innerText = field0:site,field1:username,field2:password
