@@ -22,7 +22,7 @@ Store our credentials in google drive, that can be fetched only if we are alread
 <b>Initialization</b>
 
 0. Prompt for master password.
-1. Store them in browser cache.
+1. Store it in browser cache.
 2. Master password should expire after some time-span OR browser restart.
 
 <b>Password Storing</b>
@@ -34,7 +34,7 @@ Store our credentials in google drive, that can be fetched only if we are alread
 <b>Password Autofill</b>
 
 0. Detect login form.
-1. Retrieve credentials from google sheet. i.e, ``getCredentials(pageURL);``
+1. Retrieve credentials from google sheet private feeds. i.e, ``getCredential(location.hostname);``
 2. Fill them on login-forms, and simulate login button click .
 
 <b>Features</b>
