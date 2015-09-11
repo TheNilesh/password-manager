@@ -102,7 +102,7 @@ function updateCache() {
         var content = response.responseXML;
         var records = content.getElementsByTagName("content");
         for(var i = 0; i < records.length; i++) {
-            var fields = records[i].split(',');
+            var fields = records[i].innerHTML.split(',');
             //assuming content.innerText = field0:site,field1:username,field2:password
             var siteName = fields[0].split(':')[1];
             var userName = fields[1].split(':')[1];
