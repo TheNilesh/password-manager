@@ -4,6 +4,8 @@
 // @include     *
 // @version     1
 // @grant       GM_xmlhttpRequest
+// @grant       GM_setValue
+// @grant       GM_getValue
 // ==/UserScript==
 
 /* Include Stanford Javascript Crypto Library */
@@ -14,20 +16,20 @@ function utf8_to_b64(str) {
 
 var masterPassword = null;
 var userIdField = null;
-var pwdBox;
+var passwordField;
 
 function encryptAndSend() {
     if (masterPassword == null) {
         masterPassword = prompt("Master Password ?");
     }
-    var encUser = utf8_to_b64( JSON.stringify(sjcl.encrypt(masterPassword, userIdField.value)) );
-    var encPwd = utf8_to_b64( JSON.stringify(sjcl.encrypt(masterPassword, pwdBox.value)) );
+    var userName = userIdField.value;
+    var encPwd = utf8_to_b64( JSON.stringify(sjcl.encrypt(masterPassword, passwordField.value)) );
    
   //post to google
   GM_xmlhttpRequest({
     method: "POST",
     url: "https://docs.google.com/forms/d/[FORM_ID]/formResponse",
-    data: "entry.[field-number1]=" + location.hostname + "&entry.[field-number2]=" + encUser + "&entry.[field-number3]=" + encPwd,
+    data: "entry.[field-number1]=" + location.hostname + "&entry.[field-number2]=" + userName + "&entry.[field-number3]=" + encPwd,
     headers: {
         "Content-Type": "application/x-www-form-urlencoded"
     },
@@ -45,7 +47,7 @@ var loginForm = null;
 var inputs = document.getElementsByTagName('input');
 for (var i = 0; i < inputs.length; i++) {
   if (inputs[i].type.toLowerCase() == 'password') {
-    pwdBox = inputs[i];
+    passwordField = inputs[i];
     loginForm = inputs[i].form;
     userIdField = inputs[i-1];
     break;
@@ -54,73 +56,67 @@ for (var i = 0; i < inputs.length; i++) {
 
 if (loginForm != null) {
   
-  var credential = null; //obtainCredential(location.hostname);
+  var credential = obtainCredential(location.hostname);
   if (null != credential) {
-    //auto fill and hit submit
-    userIdField.value = credential.split(':')[0];
-    pwdBox.value = credential.split(':')[1];
-    loginForm.submit();
+    userIdField.value = credential[0];
+    passwordField.value = credential[1];
+   // loginForm.submit();
   } else {
-    //Submit credentials to Google
+    //We dont have credential, submit after entering
     loginForm.addEventListener("submit", encryptAndSend);
     console.log("Event Listener attached");
   }
 }
 
-/*
+/**
+ * Obtains credentials from local db, invokes updateCache, to get from google
+ */
 function obtainCredential(site) {
   //lookup into cache
-  var credential = GM_getvalue('cred:' + site);
-  if (credential == null) { //contact google
+  var credential = GM_getValue('cred:' + site);
+  if (credential == undefined) {
+  	console.log("Credential Not found locally");
     updateCache();
-    credential = GM_getvalue('cred:' + site);
+    credential = GM_getValue('cred:' + site);
   }
-  
-  credential = decryptCredential(credential);
-  
-  return credential;
-}
-
-function decryptCredential(credential) {
-    var userId = credential.split(':')[0];
-    var pwd = credential.split(':')[1];
-    if (masterPassword == null) {
+    var userPwd = credential.split(':');
+    var userName = userPwd[0];
+    var password = userPwd[1];
+    if (masterPassword == undefined) {
         masterPassword = prompt("Master Password ?");
     }
-    //Cache master Password
-    userId = sjcl.decrypt(masterPassword, userId);
-    pwd = sjcl.decrypt(masterPassword, pwd);
-    return userId + ':' + pwd;
+    password = sjcl.decrypt(masterPassword, password);
+    return [userName, password];
 }
 
+/**
+ * Contacts Google Sheet and downloads encrypted credentials 
+ */
 function updateCache() {
   GM_xmlhttpRequest({
       method: "GET",
       url: "https://spreadsheets.google.com/feeds/list/[WORKBOOK_ID]/[SHEET_ID]/private/basic?v=3.0",
       onload: function (response) {
-        console.log("Got all saved credentials");
+        console.log("Got saved credentials");
         var content = response.responseXML;
         var records = content.getElementsByTagName("content");
         for(var i = 0; i < records.length; i++) {
             var fields = records[i].innerHTML.split(',');
-            //assuming content.innerText = field0:site,field1:username,field2:password
+            //content.innerText = field0:site,field1:username,field2:password
             var siteName = fields[0].split(':')[1];
             var userName = fields[1].split(':')[1];
             var password = fields[2].split(':')[1];
             
             //putting into cache
-            GM_setvalue('cred:' + siteName, userName + ':' + password);
+            GM_setValue('cred:' + siteName, userName + ':' + password);
         }
         
       },
       onerror: function(reponse) {
-        console.log("error: User might not be logged in."); //TODO:check response code, forbidden
-        return null;
+    	console.log("error: User might not be logged in."); //TODO:check response code, forbidden
       }
   });
 }
-
-*/
 
 //TODO:What if password contains concat character, say ':'
 //TODO:Concatenate userId, password together to get improved enc/decryption speed
